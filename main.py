@@ -2,8 +2,20 @@ import Reader
 import Segmentation
 import Candidate
 
+def PrintExtractedResult(extracted_result):
+    print("extracted key words result is")
+    for i in range(len(extracted_result)):
+        print(extracted_result[i])
+    print("there is total " + str(i) + " key words")
+
+def PrintExtractedWord(extracted_word):
+    print("extracted key words is")
+    for i in range(len(extracted_word)):
+        print(extracted_word[i])
+
+
 def main():
-    result = Reader.readfile('result38.bin')
+    result = Reader.readfile('result0.bin')
     result_split = Segmentation.SplitCluster(result)
     delete_result = Candidate.DeleteRepetition(result_split)
     candidate = Candidate.BuildClass(delete_result)
@@ -16,12 +28,19 @@ def main():
     candidate_list = Candidate.GenCandidateList(candidate)
     sorted_candidate_list = Candidate.CandidateListSort(candidate_list)
 
-    extracted_word = Candidate.CutByRank(sorted_candidate_list,0.15)
-    print("the result of cut by rank: ")
-    for i in range(len(extracted_word)):
-        print("")
-        for j in range(len(extracted_word[i])):
-            print(extracted_word[i][j])
+    extracted_word = Candidate.CutByRank(sorted_candidate_list,0.5)
+    PrintExtractedWord(extracted_word)
+
+    # extracted_word = Candidate.CutByScore(sorted_candidate_list,2.5)
+    # PrintExtractedWord(extracted_word)
+
+    extracted_word = Candidate.CutByRankAndScore(sorted_candidate_list,0.05,2.9)
+    PrintExtractedWord(extracted_word)
+
+    extracted_result = Candidate.ExtractedWordDeleteRepetition(extracted_word)
+    PrintExtractedResult(extracted_result)
+
+
 
     # print("")
     # print("")

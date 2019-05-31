@@ -135,45 +135,81 @@ def CandidateListSort(candidate_list):
         sorted_candidate_list = copy.deepcopy(candidate_list_tmp)
     return sorted_candidate_list
 
-def CutByRank(candidate_list,proportion):
+def CutByRank(sorted_candidate_list,proportion):
     """
     通过所占聚类类别中的比例提取排名靠前的关键词
-    :param candidate_list: 已经排序好的关键词列表
+    :param sorted_candidate_list: 已经排序好的关键词列表
     :param proportion: 比例
     :return: 按照比例提取的关键词
     """
     extracted_word = []
-    for i in range(len(candidate_list)):
-        lenth = int(len(candidate_list[i]) * proportion)
+    for i in range(len(sorted_candidate_list)):
+        lenth = int(len(sorted_candidate_list[i]) * proportion)
         tmp = []
-        for j in range(lenth):
-            tmp.append(candidate_list[i][j])
-        if j < len(candidate_list[i]):
-            last_score = candidate_list[i][j][1]
+        limit_score = sorted_candidate_list[i][lenth][1]
+        j = 0
+        while j < len(sorted_candidate_list[i]) and sorted_candidate_list[i][j][1] >= limit_score:
+            tmp.append(sorted_candidate_list[i][j])
             j = j + 1
-            while j <= len(candidate_list[i]) and candidate_list[i][j][1] == last_score:
-                tmp.append(candidate_list[i][j])
-                j = j + 1
         extracted_word.append(tmp)
     return extracted_word
 
-def CutByScore(candidate_list,score_limit):
+def CutByScore(sorted_candidate_list,score_limit):
     """
     通过各类分数进行关键词提取
-    :param candidate_list: 已经排序好的关键词列表
+    :param sorted_candidate_list: 已经排序好的关键词列表
     :param score_limit: 分数
     :return: 按照分数提取的关键词
     """
     extracted_word = []
-    for i in range(len(candidate_list)):
+    for i in range(len(sorted_candidate_list)):
         tmp = []
-        for j in range(len(candidate_list[i])):
-            if candidate_list[i][j][1] >= score_limit:
-                tmp.append(candidate_list[i][j])
+        for j in range(len(sorted_candidate_list[i])):
+            if sorted_candidate_list[i][j][1] >= score_limit:
+                tmp.append(sorted_candidate_list[i][j])
             else:
                 break
         extracted_word.append(tmp)
     return extracted_word
+
+def CutByRankAndScore(sorted_candidate_list,proportion,score_limit):
+    """
+    过滤满足排名和分数的关键词
+    :param sorted_candidate_list: 已经排序好的关键词列表
+    :param proportion: 比例
+    :param score_limit: 分数
+    :return: 按照排名和分数提取的关键词
+    """
+    extracted_word_tmp = []
+    for i in range(len(sorted_candidate_list)):
+        lenth = int(len(sorted_candidate_list[i]) * proportion)
+        tmp = []
+        limit_score = sorted_candidate_list[i][lenth][1]
+        j = 0
+        while j < len(sorted_candidate_list[i]) and sorted_candidate_list[i][j][1] >= limit_score:
+            tmp.append(sorted_candidate_list[i][j])
+            j = j + 1
+        extracted_word_tmp.append(tmp)
+
+    extracted_word = copy.deepcopy(extracted_word_tmp)
+    for i in range(len(extracted_word_tmp)):
+        for j in range(len(extracted_word_tmp[i])):
+            if extracted_word_tmp[i][j][1] < score_limit:
+                extracted_word.remove(extracted_word_tmp[i][j])
+    return extracted_word
+
+def ExtractedWordDeleteRepetition(extracted_word):
+    """
+    得出每个聚类去重后的所有关键词
+    :param extracted_word: 未去重的每个聚类类别内部的关键词
+    :return: 去重后提取的关键词
+    """
+    extracted_result = []
+    for i in range(len(extracted_word)):
+        for j in range(len(extracted_word[i])):
+            if extracted_word[i][j][0] not in extracted_result:
+                extracted_result.append(extracted_word[i][j][0])
+    return extracted_result
 
 if __name__ == '__main__':
     result = Reader.readfile('result38.bin')
