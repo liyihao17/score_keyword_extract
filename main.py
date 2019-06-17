@@ -14,8 +14,8 @@ def PrintExtractedWord(extracted_word):
         print(extracted_word[i])
 
 
-def main():
-    result = Reader.readfile('result0.bin')
+def ExtractFeatureWords(filename):
+    result = Reader.readfile(filename)
     result_split = Segmentation.SplitCluster(result)
     delete_result = Candidate.DeleteRepetition(result_split)
     candidate = Candidate.BuildClass(delete_result)
@@ -28,17 +28,17 @@ def main():
     candidate_list = Candidate.GenCandidateList(candidate)
     sorted_candidate_list = Candidate.CandidateListSort(candidate_list)
 
-    extracted_word = Candidate.CutByRank(sorted_candidate_list,0.5)
-    PrintExtractedWord(extracted_word)
-
-    # extracted_word = Candidate.CutByScore(sorted_candidate_list,2.5)
+    # extracted_word = Candidate.CutByRank(sorted_candidate_list,0.5)
     # PrintExtractedWord(extracted_word)
 
-    extracted_word = Candidate.CutByRankAndScore(sorted_candidate_list,0.05,2.9)
-    PrintExtractedWord(extracted_word)
+    extracted_word = Candidate.CutByScore(sorted_candidate_list,2.9)
+    # PrintExtractedWord(extracted_word)
+
+    # extracted_word = Candidate.CutByRankAndScore(sorted_candidate_list,0.05,2.9)
+    # PrintExtractedWord(extracted_word)
 
     extracted_result = Candidate.ExtractedWordDeleteRepetition(extracted_word)
-    PrintExtractedResult(extracted_result)
+    # PrintExtractedResult(extracted_result)
 
 
 
@@ -53,6 +53,20 @@ def main():
     #     print("")
     #     for j in range(len(extracted_word[i])):
     #         print(extracted_word[i][j])
+    return extracted_result
+
+def main():
+    extract_word_result = []
+    for i in range(0,9):
+        filename = "result" + str(i) + ".bin"
+        tmp = ExtractFeatureWords(filename)
+        for j in range(len(tmp)):
+            if tmp[j] not in extract_word_result:
+                extract_word_result.append(tmp[j])
+    print("extracted words are ")
+    for i in range(len(extract_word_result)):
+        print(extract_word_result[i])
+
 
 if __name__ == "__main__":
     main()
